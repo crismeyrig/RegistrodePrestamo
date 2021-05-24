@@ -1,0 +1,145 @@
+﻿@page "/Prestamos"
+@page "/Prestamos/{PrestamoId:int}"
+
+@inject PersonasBLL PersonasBLL
+@inject PrestamosBLL PrestamosBLL
+
+
+@inject IToastService toast
+
+<EditForm Model="Prestamo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro Prestamo</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Prestamo Id</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="this.PrestamoId" class="form-control" />
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-secondary input-group-text" style="z-index:0" @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @*Persona Id*@
+                <div class="form-group">
+                    <label>Persona</label>
+                    <InputSelect @bind-Value="Prestamo.PersonaId" class="form-control">
+                        @foreach (var item in @personas)
+                        {
+                            <option value="@item.PersonaId">@item.Nombres</option>}
+                    </InputSelect>
+                    <ValidationMessage For="(() => Prestamo.PersonaId)" />
+                </div>
+
+                @*Fecha*@
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <InputDate @bind-Value="Prestamo.Fecha" class="form-control" />
+                </div>
+
+                @*Concepto*@
+                <div class="form-group">
+                    <label>Concepto</label>
+                    <InputTextArea @bind-Value="Prestamo.Concepto" class="form-control" />
+                    <ValidationMessage For="(() => Prestamo.Concepto)" />
+                </div>
+
+                @*Monto*@
+                <div class="form-group">
+                    <label>Monto</label>
+                    <InputNumber @bind-Value="Prestamo.Monto" class="form-control" />
+                    <ValidationMessage For="(() => Prestamo.Monto)" />
+                </div>
+
+                @*Balance*@
+                <div class="form-group">
+                    <label>Balance</label>
+                    <InputNumber @bind-Value="Prestamo.Balance" class="form-control" readonly />
+                </div>
+
+            </form>
+        </div>
+
+        <div class="card-footer">
+            <div class="form-group text-center">
+                <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo</button>
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code { [Parameter]
+    public int PrestamoId { get; set; }
+
+    Prestamos Prestamo = new Prestamos();
+    List<Personas> personas = new List<Personas>();
+
+    protected override async void OnInitialized()
+    {
+        Nuevo();
+        personas = await PersonasBLL.GetPersonas();
+    }
+
+    public async void Buscar()
+    {
+        var registro = await PrestamosBLL.Buscar(this.PrestamoId);
+
+        if (registro != null)
+        {
+            Prestamo = registro;
+        }
+        else
+        {
+            toast.ShowInfo("No se encontró el registro.");
+        }
+    }
+
+    public void Nuevo()
+    {
+        Limpiar();
+    }
+
+    public async void Guardar()
+    {
+        Prestamo.PrestamoId = this.PrestamoId;//Esta linea la coloque porque esa propiedad de la entidad tenia 0 como valor.
+        if (await PrestamosBLL.Guardar(Prestamo))
+        {
+            toast.ShowSuccess("Guardado");
+            Limpiar();
+        }
+        else
+        {
+            toast.ShowError("No se logró guardar el registro.");
+        }
+    }
+
+    public async void Eliminar()
+    {
+        if (await PrestamosBLL.Eliminar(this.PrestamoId))
+        {
+            toast.ShowSuccess("Eliminado");
+            Limpiar();
+        }
+        else
+        {
+            toast.ShowError("No se logró eliminar el registro.");
+        }
+    }
+
+    public void Limpiar()
+    {
+        Prestamo = new Prestamos();
+        this.PrestamoId = 0;
+    } }
