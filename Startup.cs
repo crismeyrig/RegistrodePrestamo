@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RegistrodePrestamo.BLL;
 using RegistrodePrestamo.DAL;
+using Microsoft.EntityFrameworkCore;
 
 namespace RegistrodePrestamo
 {
@@ -32,6 +33,15 @@ namespace RegistrodePrestamo
             services.AddServerSideBlazor();
             services.AddBlazoredToast();
             services.AddSingleton<WeatherForecastService>();
+
+            services.AddTransient<PersonasBLL>();
+            //Inyeccion de dependencia la BLL Prestamos
+            services.AddTransient<PrestamosBLL>();
+
+            services.AddDbContext<Contexto>(options =>
+            options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
+            );
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

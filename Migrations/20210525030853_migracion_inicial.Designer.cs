@@ -9,7 +9,7 @@ using RegistrodePrestamo.DAL;
 namespace RegistrodePrestamo.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20210524041748_migracion_inicial")]
+    [Migration("20210525030853_migracion_inicial")]
     partial class migracion_inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
